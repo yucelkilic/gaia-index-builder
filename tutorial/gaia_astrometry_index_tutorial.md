@@ -1,13 +1,13 @@
-# 🌌 Astrometry.net için GAIA Verisinden Index Dosyası Üretimi  
-**Hazırlayan:** Yücel KILIÇ  
+# 🌌 Creating Astrometry.net Index Files from GAIA Data  
+**Prepared by:** Yücel KILIÇ  
 
-Bu rehberde, GAIA katalog verilerini kullanarak astrometry.net çözümleyici için özelleştirilmiş index dosyalarının nasıl üretileceği adım adım açıklanmaktadır.
+This tutorial explains step by step how to generate custom index files for the astrometry.net solver using GAIA catalog data.
 
 ---
 
-## 🔹 1. GAIA Verisini Sorgulama ve İndirme (TAP / ADQL)
+## 🔹 1. Querying and Downloading GAIA Data (TAP / ADQL)
 
-Aşağıdaki ADQL sorgusu, belirli bir gökyüzü bölgesinde yer alan 10.000 kaynağı çeker. Örneğin RA = 220.2420, Dec = +14.6736 merkezli, 1 derece yarıçaplı bir bölge:
+Use the following ADQL query to retrieve 10,000 sources from a 1-degree radius sky region centered at RA = 220.2420, Dec = +14.6736.
 
 ```sql
 SELECT TOP 10000 
@@ -32,16 +32,16 @@ WHERE CONTAINS(
 ORDER BY target_separation_deg
 ```
 
-### 📥 Çıktıyı indirme:
+### 📥 Output download:
 
 - Format: `FITS`
-- Örnek dosya adı: `output_cat/1750766772370O-result.fits`
+- Example file: `output_cat/1750766772370O-result.fits`
 
 ---
 
-## 🔹 2. HEALPix Bölütleme (`hpsplit` ile)
+## 🔹 2. Splitting the Catalog into HEALPix Tiles (`hpsplit`)
 
-Astrometry.net için index üretiminde kullanılacak yıldız tablosunu, HEALPix yapısına bölmek gerekir. Bu işlem için `hpsplit` aracı kullanılır:
+The star catalog must be split into HEALPix tiles to generate astrometry.net index files. Use the `hpsplit` tool:
 
 ```bash
 mkdir -p gaia_hp
@@ -52,22 +52,22 @@ hpsplit \
   output_cat/1750766772370O-result.fits
 ```
 
-### Parametre Açıklamaları:
+### Parameter Explanation:
 
-| Parametre | Anlamı |
-|-----------|--------|
-| `-o`      | Çıktı dosya adı şablonu (HEALPix numarasıyla) |
-| `-n 2`    | NSIDE = 2 → toplam 48 HEALPix hücresi |
-| `-m 1`    | HEALPix seviye 1 alt hücrelere bölme işlemi |
-| `%02i`    | İki basamaklı healpix ID → örn. `gaia-hp08.fits` |
+| Parameter | Description |
+|-----------|-------------|
+| `-o`      | Output filename pattern (including HEALPix ID) |
+| `-n 2`    | NSIDE = 2 → divides the sky into 48 HEALPix tiles |
+| `-m 1`    | Use HEALPix level 1 |
+| `%02i`    | Two-digit HEALPix ID, e.g. `gaia-hp08.fits` |
 
-> Bu işlem sonucunda `gaia_hp/` klasöründe `gaia-hp00.fits`, `gaia-hp01.fits`, ... gibi dosyalar oluşur. Örneğimizde yalnızca `gaia-hp08.fits` oluşmuş olabilir.
+> After this step, the folder `gaia_hp/` will contain files like `gaia-hp00.fits`, `gaia-hp01.fits`, etc. (you may get only one file depending on the region covered).
 
 ---
 
-## 🔹 3. Index Dosyalarını Üretme (`build-astrometry-index`)
+## 🔹 3. Building Index Files (`build-astrometry-index`)
 
-Artık her bir HEALPix dosyasından farklı çözünürlüklerde astrometry index dosyaları oluşturabiliriz.
+Now we generate astrometry index files at different quad scales using each HEALPix tile.
 
 ```bash
 mkdir -p output_index
@@ -86,33 +86,33 @@ for scale in 0 2 4 6; do
 done
 ```
 
-### Parametre Açıklamaları:
+### Parameter Explanation:
 
-| Parametre                     | Anlamı |
-|-------------------------------|--------|
-| `-i`                          | Giriş FITS dosyası |
-| `-s 2`                        | HEALPix NSIDE = 2 |
-| `-H 8`                        | HEALPix ID = 08 |
-| `-P 0/2/4/6`                  | Quad çözünürlük ölçeği |
-| `-E`                          | Giriş kataloğundaki dolu HEALPix’leri tarar |
-| `-S phot_g_mean_mag`         | Parlaklığa göre sıralama (küçük G mag önce) |
-| `-o`                          | Çıktı index dosyası adı |
-| `-I`                          | Index ID (benzersiz olmalı) |
+| Parameter           | Description |
+|---------------------|-------------|
+| `-i`                | Input FITS catalog |
+| `-s 2`              | HEALPix NSIDE = 2 |
+| `-H 8`              | HEALPix ID = 08 |
+| `-P`                | Quad scale index |
+| `-E`                | Scan catalog for HEALPix occupancy |
+| `-S phot_g_mean_mag` | Sort stars by brightness (G-band magnitude) |
+| `-o`                | Output index filename |
+| `-I`                | Unique index ID (must be unique across all files) |
 
-### `-P` Ölçek Tablosu:
+### `-P` Scale Guide:
 
-| `-P` Değeri | Tahmini Görüntü Çapı | Uygun Görüntü Türü       |
-|-------------|----------------------|---------------------------|
-| `0`         | ~6 arcmin            | Küçük CCD'ler             |
-| `2`         | ~12 arcmin           | Orta alan                 |
-| `4`         | ~24 arcmin           | Geniş alan CCD'ler        |
-| `6`         | ~1 derece            | Survey teleskopları       |
+| `-P` Value | Approx. Field of View | Recommended For          |
+|------------|------------------------|---------------------------|
+| `0`        | ~6 arcmin              | Small CCDs                |
+| `2`        | ~12 arcmin             | Medium field images       |
+| `4`        | ~24 arcmin             | Wide-field CCDs           |
+| `6`        | ~1 degree              | Survey instruments        |
 
 ---
 
-## 🔹 4. Çözümlemeyi Test Etme (`solve-field`)
+## 🔹 4. Testing with `solve-field`
 
-Üretilen index dosyalarını kullanarak çözümleme yapabilirsiniz:
+Once your index files are built, test them with astrometry.net:
 
 ```bash
 solve-field \
@@ -121,27 +121,22 @@ solve-field \
   /path/to/image.fits
 ```
 
-> Alternatif olarak çözümlemeyi `.xyls` veya `.axy` dosyası ile de başlatabilirsiniz.
+> Alternatively, you may use `.xyls` or `.axy` input files.
 
 ---
 
-## ✅ Özet Akış
+## ✅ Summary Workflow
 
-1. 📡 GAIA TAP servisi ile hedef bölgeden yıldızlar sorgulanır (ADQL)
-2. 🧩 `hpsplit` ile katalog HEALPix yapısına bölünür
-3. ⚙️ `build-astrometry-index` ile quad tabanlı index dosyaları oluşturulur
-4. 🔭 `solve-field` komutu ile çözümleme gerçekleştirilir
-
----
-
-## 📌 Ek Notlar
-
-- Daha geniş gökyüzü alanları için `NSIDE=1`, `NSIDE=4` gibi değerler denenebilir.
-- `SExtractor` ile özel kaynak çıkarımı yapılabilir: `solve-field --use-sextractor`
-- Quad üretim başarısı düşükse, `-B`, `-n`, `-f` gibi parametrelerle deney yapılabilir.
+1. 📡 Query GAIA data from TAP service using ADQL  
+2. 🧩 Split the catalog into HEALPix tiles with `hpsplit`  
+3. ⚙️ Generate index files using `build-astrometry-index`  
+4. 🔭 Use `solve-field` to test solution with your own data
 
 ---
 
-**Hazırlayan:**  
-🧑‍🚀 *Yücel KILIÇ*  
-📧 yucel.kilic@...
+## 📌 Notes
+
+- For broader coverage, consider NSIDE = 1 or NSIDE = 4.  
+- You can use your own source extractor (e.g. `sextractor`) with:  
+  `solve-field --use-sextractor`  
+- If quad generation fails, try tuning `-B`, `-n`, or `-f` parameters.
