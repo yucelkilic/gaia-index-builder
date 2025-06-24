@@ -37,4 +37,4 @@ This project explains and automates how to generate astrometry.net index files f
 
 ## 📖 Read the Guide
 
-See [`tutorial/gaia_astrometry_index_tutorial_en.md`](tutorial/gaia_astrometry_index_tutorial.md)
+See [`tutorial/gaia_astrometry_index_tutorial.md`](tutorial/gaia_astrometry_index_tutorial.md)
