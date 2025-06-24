@@ -34,7 +34,7 @@ ORDER BY target_separation_deg
 ### 📥 Çıktıyı indirme:
 
 - Format: `FITS`
-- Örnek dosya adı: `output_cat/1750766772370O-result.fits`
+- Örnek dosya adı: `input_cat/1750766772370O-result.fits`
 
 ---
 
