@@ -91,7 +91,7 @@ done
 |---------------------|-------------|
 | `-i`                | Input FITS catalog |
 | `-s 2`              | HEALPix NSIDE = 2 |
-| `-H 8`              | HEALPix ID = 08 |
+| `-H 8`              | HEALPix tile ID (here '08' is used as an example — replace with the tile you are working on) |
 | `-P`                | Quad scale index |
 | `-E`                | Scan catalog for HEALPix occupancy |
 | `-S phot_g_mean_mag` | Sort stars by brightness (G-band magnitude) |
