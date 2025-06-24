@@ -1,5 +1,4 @@
 # 🌌 Creating Astrometry.net Index Files from GAIA Data  
-**Prepared by:** Yücel KILIÇ  
 
 This tutorial explains step by step how to generate custom index files for the astrometry.net solver using GAIA catalog data.
 
