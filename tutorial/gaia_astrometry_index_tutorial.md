@@ -108,19 +108,37 @@ done
 | `6`        | ~1 degree              | Survey instruments        |
 
 ---
+### 🔹 4. Testing with `solve-field`
 
-## 🔹 4. Testing with `solve-field`
+Once your index files are built, you can test them using [astrometry.net](http://astrometry.net)'s `solve-field` tool.
 
-Once your index files are built, test them with astrometry.net:
+To make the index files accessible system-wide, copy them into Astrometry.net’s default index directory. This allows `solve-field` to find them automatically during image solving.
 
-```bash
-solve-field \
-  --index-xyls output_index/index-55000-08.fits \
-  --ra 220.2420 --dec 14.6736 --radius 0.5 \
-  /path/to/image.fits
-```
+#### ✅ Step-by-step:
 
-> Alternatively, you may use `.xyls` or `.axy` input files.
+1. Copy all index files into the system directory:
+   ```bash
+   sudo cp output_index/index-*.fits /usr/share/astrometry
+   ```
+
+   > ⚠️ Note: The directory path may vary depending on your system. Common alternatives include:
+   >
+   > - `/usr/local/astrometry/data/`
+   > - `/usr/share/astrometry/`
+   > - `~/.astrometry/data/`
+
+2. Run `solve-field` with your target image:
+   ```bash
+   solve-field \
+     --ra 220.2420 --dec 14.6736 --radius 0.5 \
+     /path/to/image.fits
+   ```
+
+#### 💡 Notes:
+
+- You do not need to specify `--index` manually.
+- `solve-field` will automatically search in the index directory.
+- Ensure your index files cover the sky region near the image's RA/Dec.
 
 ---
 
