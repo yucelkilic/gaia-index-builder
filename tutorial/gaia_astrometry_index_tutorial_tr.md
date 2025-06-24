@@ -1,5 +1,4 @@
 # 🌌 Astrometry.net için GAIA Verisinden Index Dosyası Üretimi  
-**Hazırlayan:** Yücel KILIÇ  
 
 Bu rehberde, GAIA katalog verilerini kullanarak astrometry.net çözümleyici için özelleştirilmiş index dosyalarının nasıl üretileceği adım adım açıklanmaktadır.
 
