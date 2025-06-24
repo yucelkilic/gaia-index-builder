@@ -151,9 +151,52 @@ To make the index files accessible system-wide, copy them into Astrometry.net’
 
 ---
 
-## 📌 Notes
+### 📌 Notes
 
-- For broader coverage, consider NSIDE = 1 or NSIDE = 4.  
-- You can use your own source extractor (e.g. `sextractor`) with:  
-  `solve-field --use-sextractor`  
-- If quad generation fails, try tuning `-B`, `-n`, or `-f` parameters.
+- For broader sky coverage, consider using `NSIDE = 1` (coarse) or `NSIDE = 4` (finer) depending on your catalog density.
+
+- You can use your own source extractor (e.g. [SExtractor](https://www.astromatic.net/software/sextractor/)) when solving images:
+  ```bash
+  solve-field --use-sextractor /path/to/image.fits
+  ```
+
+- If quad generation fails or results in too few matches, consider tuning the following parameters in `build-astrometry-index`:
+
+#### 🔧 `-B <val>` — Bright limit cutoff (magnitude filter)
+
+- Excludes stars **brighter** than the given value (e.g., saturated sources).
+- Useful when sorting by magnitude (e.g. `phot_g_mean_mag`).
+
+```bash
+-B 10
+```
+> Only stars with G > 10 mag will be used.
+
+---
+
+#### 🔧 `-n <sweeps>` — Stars per HEALPix grid cell
+
+- Controls **how many stars are retained** in each small HEALPix partition.
+- Higher = denser index = more quads but slower build.
+- Lower = faster but may miss some quads.
+
+```bash
+-n 20
+```
+> Retains 20 stars per fine HEALPix cell.
+
+---
+
+#### 🔧 `-f` — Sort in descending order
+
+- Changes the sort order of the input catalog based on the selected column (`-S`).
+- Useful for magnitude: makes **brighter stars appear first**.
+
+```bash
+-S phot_g_mean_mag -f
+```
+> Sorts the catalog by G mag in descending order (brightest first).
+
+---
+
+> 💡 **Tip:** When using `-B` with `-f`, ensure your logic aligns (e.g. `-B 16 -f` = only stars brighter than G=16).
