@@ -19,8 +19,7 @@ This project explains and automates how to generate astrometry.net index files f
 
 - `tutorial/`  
   Markdown-based guides:  
-  → `gaia_astrometry_index_tutorial.md` (Türkçe)  
-  → `gaia_astrometry_index_tutorial_en.md` (English)
+  → `gaia_astrometry_index_tutorial.md`
 
 - `examples/` *(optional)*  
   FITS images or WCS solutions for testing the generated index files.
