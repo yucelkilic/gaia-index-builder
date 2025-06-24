@@ -26,9 +26,7 @@ This project explains and automates how to generate astrometry.net index files f
 
 - `README.md`  
   General description of the project.
-
-- `LICENSE` *(optional)*  
-  Open-source license file (e.g., MIT or GPLv3).
+  
 ## 🛠 Requirements
 
 - astrometry.net
