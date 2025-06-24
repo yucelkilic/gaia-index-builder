@@ -34,7 +34,7 @@ ORDER BY target_separation_deg
 ### 📥 Output download:
 
 - Format: `FITS`
-- Example file: `output_cat/1750766772370O-result.fits`
+- Example file: `input_cat/1750766772370O-result.fits`
 
 ---
 
@@ -48,7 +48,7 @@ mkdir -p gaia_hp
 hpsplit \
   -o gaia_hp/gaia-hp%02i.fits \
   -n 2 -m 1 \
-  output_cat/1750766772370O-result.fits
+  input_cat/1750766772370O-result.fits
 ```
 
 ### Parameter Explanation:
